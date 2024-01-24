@@ -8,7 +8,8 @@ app = Flask(__name__)
 # Function to scrape weather information from Google search
 def scrape_weather(city):
     try:
-        url = f'https://www.google.com/search?q={city}+weather&hl=en&units=metric'
+        url = f'https://www.google.co.ma/search?q={city}+weather&hl=en&units=metric'
+        
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
