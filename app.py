@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Function to convert Fahrenheit to Celsius
 def fahrenheit_to_celsius(fahrenheit):
-    return (fahrenheit - 32) * 5.0/9.0
+    return round((fahrenheit - 32) * 5.0/9.0, 2)
 
 # Function to scrape weather information from Google search
 def scrape_weather(city):
@@ -29,7 +29,7 @@ def scrape_weather(city):
         if temperature_element and condition_element and icon_element and city_element:
             temperature_fahrenheit = float(temperature_element.text)
             temperature_celsius = fahrenheit_to_celsius(temperature_fahrenheit)
-            temperature_celsius = round(temperature_celsius, 2)  # Round to two decimal places
+            temperature_celsius = int(round(temperature_celsius))  # Convert to int after rounding
             condition = condition_element.text
             place = city_element.text
             icon_url = icon_element['src']
