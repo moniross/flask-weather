@@ -1,0 +1,107 @@
+<!-- templates/index.html (updated for centering and dark mode) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <form method="POST">
+            <label for="city">Enter City:</label>
+            <input type="text" id="city" name="city" required>
+            <button type="submit">Get Weather</button>
+        </form>
+
+        <button id="getLocation" type="button">Use My Location</button>
+
+        {% if weather_info %}
+            <div class="weather-info">
+                <h2>Weather in {{ weather_info['place'] }}</h2>
+                <p>Temperature: {{ weather_info['temperature'] }} °C</p>
+                <p>Condition: {{ weather_info['condition'] }}</p>
+                <img src="{{ weather_info['icon_url'] }}" alt="Weather Icon">
+            </div>
+        {% endif %}
+    </div>
+
+    <button id="darkModeToggle" type="button"><i class="fas fa-moon"></i></button>
+
+    <script>
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + "; " + expires + "; path=/";
+        }
+
+        // Function to get a cookie value by name
+        function getCookie(name) {
+            const cname = name + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(cname) === 0) {
+                    return c.substring(cname.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            setCookie('darkMode', isDarkMode ? '1' : '0', 365);
+        }
+
+        // Set dark mode based on cookie on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDarkMode = getCookie('darkMode') === '1';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Event listener for dark mode toggle button
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+        // JavaScript to handle location detection
+        document.getElementById('getLocation').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        });
+
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Reverse geocoding to get city name from coordinates (optional)
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    const cityName = data.address.city || data.address.town || data.address.village || data.address.county;
+                    document.getElementById('city').value = cityName;
+                })
+                .catch(error => {
+                    console.error('Error fetching city name:', error);
+                });
+        }
+        
+    </script>
+</body>
+</html>
