@@ -1,15 +1,17 @@
-# app.py (updated)
 from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
+# Function to convert Fahrenheit to Celsius
+def fahrenheit_to_celsius(fahrenheit):
+    return (fahrenheit - 32) * 5.0/9.0
+
 # Function to scrape weather information from Google search
 def scrape_weather(city):
     try:
-        url = f'https://www.google.co.ma/search?q={city}+weather&hl=en&units=metric'
-        
+        url = f'https://www.google.com/search?q={city}+weather&hl=en&units=imperial'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
@@ -18,19 +20,21 @@ def scrape_weather(city):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Extract the relevant weather information
-        temperature_element = soup.find('span', {'id': 'wob_tm', 'class': 'wob_t q8U8x'})
+        temperature_element = soup.find('span', {'id': 'wob_tm'})
         condition_element = soup.find('span', {'id': 'wob_dc'})
         icon_element = soup.find('img', {'id': 'wob_tci'})
         city_element = soup.find('span', {'class': 'BBwThe'})
 
         # Check if the elements are present before accessing their text content
         if temperature_element and condition_element and icon_element and city_element:
-            temperature = temperature_element.text
+            temperature_fahrenheit = float(temperature_element.text)
+            temperature_celsius = fahrenheit_to_celsius(temperature_fahrenheit)
+            temperature_celsius = round(temperature_celsius, 2)  # Round to two decimal places
             condition = condition_element.text
             place = city_element.text
             icon_url = icon_element['src']
 
-            return {'temperature': temperature, 'condition': condition, 'icon_url': icon_url, 'place': place}
+            return {'temperature': temperature_celsius, 'condition': condition, 'icon_url': icon_url, 'place': place}
         else:
             return {'error': 'Weather information not found'}
 
