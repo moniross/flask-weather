@@ -17,7 +17,7 @@ def scrape_weather(city):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Extract the relevant weather information
-        temperature_element = soup.find('span', {'id': 'wob_tm'})
+        temperature_element = soup.find('span', {'id': 'wob_tm', 'class': 'wob_t q8U8x'})
         condition_element = soup.find('span', {'id': 'wob_dc'})
         icon_element = soup.find('img', {'id': 'wob_tci'})
         city_element = soup.find('span', {'class': 'BBwThe'})
